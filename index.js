@@ -23,6 +23,9 @@ app.get('/', (req, res) => {
 
 const users = [{ id: 1, email: 'user@example.com', password: 'secret' }];
 
+app.get('/login', (req, res) => {
+  res.render('login')
+})
 // Login route – returns a signed JWT on success
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
