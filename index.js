@@ -19,8 +19,8 @@ app.set('view engine', 'ejs')
 
 app.use(express.static('public'))
 app.use(bodyParser.json())
-app.use(express.urlencoded({ extended: false }))   
-app.use(cookieParser())                            
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
 
 
 app.get('/', (req, res) => {
@@ -30,24 +30,27 @@ app.get('/', (req, res) => {
 
 // const users = [{ id: 1, name: "asd", password: "asd" }];
 let users = []
-try{
-  const db_data = fs.readFileSync(dbPath,'utf-8');
+try {
+  const db_data = fs.readFileSync(dbPath, 'utf-8');
   users = JSON.parse(db_data);
 }
-catch(e){
+catch (e) {
   console.log("tried to load db data, explode wheeee")
   users = [];
 }
 // const users = JSON.parse(fs.readFileSync(dbPath,'utf-8'));
 
 function addUser(newUser) {
-  users.push(newUser);
-  fs.writeFileSync(dbPath, JSON.stringify(users, null, 2)); 
+  if (users.find(u => u.name === newUser.name) === undefined) {
+    console.log("user already exists")
+    users.push(newUser);
+    fs.writeFileSync(dbPath, JSON.stringify(users, null, 2));
+  }
 }
 
 addUser({ id: 2, name: "asd", password: "asd" });
 
-app.use(authRouter)
+app.use("/", authRouter)
 
 app.get('/login', (req, res) => {
   console.log('get login')
@@ -63,7 +66,8 @@ app.post('/login', (req, res) => {
   const token = generateToken(user);
   res.cookie('token', token, { httpOnly: true });
   // res.json({ token });
-  res.json({ message: 'Login successful', token });
+  // res.json({ message: 'Login successful', token });
+  res.redirect('/homepage')
 });
 
 // Protected route – requires a valid JWT

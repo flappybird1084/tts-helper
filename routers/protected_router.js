@@ -14,4 +14,10 @@ authRouter.get('/protected-2',verifyToken, (req, res) => {
   res.send('Protected route 2');
 });
 
+authRouter.get('/homepage', verifyToken, (req, res) => {
+  console.log('get homepage')
+  res.render('homepage', { user: req.user });
+  // res.send('Homepage');
+});
+
 export default authRouter;
