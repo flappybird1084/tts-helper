@@ -8,19 +8,23 @@ export function generateToken (user) {
 }
 
 export function verifyToken (req, res, next) {
-  const token = req.headers.authorization
-  console.log(`token: ${token}`)
-  token = token.split(' ')[1]
-  console.log(`token: ${token}`)
-  if (!token) {
-    return res.status(401).json({message: 'No token provided'})
+  let token = req.headers.authorization?.split(' ')[1];
+
+  if (!token && req.cookies && req.cookies.token) {
+    token = req.cookies.token;
   }
+
+  console.log(`token: ${token}`);
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
   jwt.verify(token, SECRET, (err, decoded) => {
     if (err) {
-      return res.status(401).json({message: 'Invalid token'})
-      // return res.status(401).json({message: 'Invalid token'})
+      return res.status(401).json({ message: 'Invalid token' });
     }
-    req.user = decoded
-    next()
+    req.user = decoded;
+    next();
   });
 }
