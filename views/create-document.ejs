@@ -4,7 +4,8 @@ what we want is: giant text upload box and file upload button. file upload butto
 
 <h1>Create Document</h1>
 
-<form id="docForm" action="/create-document" method="POST" enctype="multipart/form-data">
+<form id="docForm" action="/documents/create" method="POST" enctype="multipart/form-data">
+  <input type="text" name="title" placeholder="Document Title" />
   <textarea
     name="textContent"
     rows="20"

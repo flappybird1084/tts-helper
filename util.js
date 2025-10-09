@@ -33,22 +33,33 @@ export function userExists(name) {
   return users.find(u => u.name === name) !== undefined;
 }
 
-export function addDocumentToUser(name, document) {
+export function addDocumentToUser(name, document, title) {
   console.log('addDocumentToUser', name)
-  const user = users.find(u => u.name === name);
+  // const user = users.find(u => u.name === name);
+  const user= getUser(name);
+  // console.log('user', user)
   if (user) {
+    console.log('adddocument to user user exists')
     // ensure the key exists
     if (!Array.isArray(user.documents)) {
+      console.log(`user.documents is not an array, making one`)
       user.documents = [];
     }
-    user.documents.push(document);
+    const combined = [title, document]
+    // user.documents.push(document);
+    user.documents.push(combined);
+    console.log(`user documents ${user.documents}`)
+    // console.log(`user json: ${JSON.stringify(user, null, 2)}`)
+    console.log(`all users ${JSON.stringify(users, null, 2)}`)
     // fs.writeFileSync(dbPath, JSON.stringify(users, null, 2));
+    updateDatabase()
   }
 }
 
 export function updateDatabase() {
   fs.writeFileSync(dbPath, JSON.stringify(users, null, 2));
 }
+
 
 export function getUser(name) {
   console.log('getUser', name);
@@ -60,7 +71,9 @@ export function getUser(name) {
 }
 
 export function getUserDocuments(name) {
-  const user = users.find(u => u.name === name);
+  const user = getUser(name);
+  console.log(`util.js -> getUserDocuments`, JSON.stringify(user.documents))
+  // const user = users.find(u => u.name === name);
   if (user) {
     return user.documents;
   }

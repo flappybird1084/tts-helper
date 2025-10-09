@@ -4,7 +4,7 @@ const SECRET = 'secret';
 
 export function generateToken(user) {
   // return jwt.sign(payload, SECRET)
-  return jwt.sign({ id: user.id }, SECRET, { expiresIn: '12h' });
+  return jwt.sign({ id: user.id, name: user.name }, SECRET, { expiresIn: '12h' });
 }
 
 export function verifyToken(req, res, next) {
@@ -14,7 +14,7 @@ export function verifyToken(req, res, next) {
     token = req.cookies.token;
   }
 
-  console.log(`token: ${token}`);
+  // console.log(`token: ${token}`);
 
   if (!token) {
     return res.status(401).json({ message: 'Unauthorized' });
@@ -24,7 +24,7 @@ export function verifyToken(req, res, next) {
     if (err) {
       return res.status(401).json({ message: 'Invalid token' });
     }
-    console.log(`decoded: ${decoded}`);
+    // console.log(`decoded: ${decoded}`);
     req.user = decoded;
     next();
   });

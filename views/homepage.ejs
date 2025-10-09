@@ -9,5 +9,7 @@ you have <%= documents.length %> documents in your database.
 <% } %>
 
 <% documents.forEach(function(document) { %>
-  <div><%= document.title %></div>
+  <div><%= document.title %>
+  <%=document%>
+  </div>
 <% }); %>

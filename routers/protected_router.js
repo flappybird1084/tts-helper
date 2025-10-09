@@ -1,7 +1,7 @@
 import express from 'express';
 // import { verifyToken } from '../auth';
 import { verifyToken } from '../auth.js';
-import { getUserDocuments } from '../util.js';
+import { getUser, getUserDocuments } from '../util.js';
 
 const authRouter = express.Router();
 
@@ -19,15 +19,14 @@ authRouter.get('/protected-2', verifyToken, (req, res) => {
 });
 
 authRouter.get('/homepage', verifyToken, (req, res) => {
-  console.log('get homepage');
-  const user = req.user;
-  const documents = getUserDocuments(user);
-  res.render('homepage', { user: req.user, documents: documents });
+  // console.log('get homepage');
+  let user = req.user;
+  const userdocuments = getUserDocuments(user.name);
+  console.log('/homepage route before render docs:', JSON.stringify(userdocuments))
+  console.log(`document len ${userdocuments.length}`)
+  res.render('homepage', { user: req.user, documents: userdocuments });
   // res.send('Homepage');
 });
 
-authRouter.get('/documents/create', verifyToken, (req, res) => {
-  res.render('create-document');
-});
 
 export default authRouter;
