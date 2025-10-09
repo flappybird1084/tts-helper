@@ -1,13 +1,13 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
-const SECRET = 'secret'
+const SECRET = 'secret';
 
-export function generateToken (user) {
+export function generateToken(user) {
   // return jwt.sign(payload, SECRET)
-  return jwt.sign({id: user.id}, SECRET, {expiresIn: '12h'})
+  return jwt.sign({ id: user.id }, SECRET, { expiresIn: '12h' });
 }
 
-export function verifyToken (req, res, next) {
+export function verifyToken(req, res, next) {
   let token = req.headers.authorization?.split(' ')[1];
 
   if (!token && req.cookies && req.cookies.token) {
@@ -24,6 +24,7 @@ export function verifyToken (req, res, next) {
     if (err) {
       return res.status(401).json({ message: 'Invalid token' });
     }
+    console.log(`decoded: ${decoded}`);
     req.user = decoded;
     next();
   });

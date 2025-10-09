@@ -1,0 +1,30 @@
+document creation page
+
+what we want is: giant text upload box and file upload button. file upload button converts the file to a text file and then we can use the text file to create a document.
+
+<h1>Create Document</h1>
+
+<form id="docForm" action="/create-document" method="POST" enctype="multipart/form-data">
+  <textarea
+    name="textContent"
+    rows="20"
+    cols="100"
+    placeholder="Paste or type your text here..."
+  ></textarea>
+  <br><br>
+
+  <input type="file" id="fileInput" name="file" accept=".txt,.md,.docx,.pdf" />
+  <br><br>
+
+  <button type="submit">Create Document</button>
+</form>
+
+<script>
+  // optional helper: auto‑fill the textarea with the selected text file content
+  document.getElementById('fileInput').addEventListener('change', async (evt) => {
+    const file = evt.target.files[0];
+    if (!file) return;
+    const text = await file.text(); // File API
+    document.querySelector('textarea[name="textContent"]').value = text;
+  });
+</script>
