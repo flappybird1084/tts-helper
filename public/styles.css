@@ -1,0 +1,93 @@
+img{
+    display: block;
+    margin: auto;
+}
+h1{
+    text-align: center;
+    font-size: 40px;
+}
+.testimonialImage{
+    float:left;
+    margin: 0 auto 0 0;
+    padding: 30px;
+}
+/* ===== Navigation Bar ===== */
+.navigation {
+  position: fixed;            /* stays at top while scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #CBD4C2; /* color gradient */
+  padding: 5rem 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* ===== Navigation Links ===== */
+
+.navigation{
+    list-style-type: none;
+    padding: 0; 
+    margin: 0; /* Removes default margin */
+}
+.navigationItem{
+    font-size: 30px;
+    display: inline-block; /* Makes list items display horizontally */
+    margin-right: 10px; /* Adds spacing between items (optional) */
+}
+
+.navigationItem a:hover {
+  color: #d4e6ff;
+  transform: translateY(-2px);
+}
+
+/* ===== Body offset (so content isn't hidden under navbar) ===== */
+body {
+  margin: 0;
+  padding-top: 60px; /* adjust to navbar height */
+  font-family: 'Poppins', sans-serif;
+}
+
+.testimonials {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Poppins', sans-serif;
+}
+
+.testimonials h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.testimonial {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;         /* space between image and text */
+  margin-bottom: 3rem; /* space between testimonials */
+}
+
+.testimonialImage {
+  width: 500px;
+  height: auto;
+  border-radius: 10px;
+}
+
+.testimonial p {
+  flex: 1;             /* let the text take remaining space */
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+/* 📱 Responsive for small screens */
+@media (max-width: 700px) {
+  .testimonial {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .testimonialImage {
+    width: 200px;
+  }
+}
+
