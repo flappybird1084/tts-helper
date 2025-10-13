@@ -27,14 +27,17 @@ authRouter.get('/protected-2', verifyToken, (req, res) => {
 //   res.render('homepage', { user: req.user, documents: userdocuments });
 //   // res.send('Homepage');
 // });
-authRouter.get('/homepage', verifyToken, (req, res) => {
+authRouter.get('/homepage', verifyToken, async (req, res) => {
   const user = req.user
-  let userDocuments = getUserDocuments(user.name)
+  let userDocuments = await getUserDocuments(user.name)
 
   // fallback to an empty array if undefined/null
   userDocuments = Array.isArray(userDocuments) ? userDocuments : []
 
-  console.log('/homepage route before render docs:', JSON.stringify(userDocuments))
+  console.log(
+    '/homepage route before render docs:',
+    JSON.stringify(userDocuments)
+  )
   console.log(`document len ${userDocuments.length}`)
 
   res.render('homepage', { user, documents: userDocuments })
