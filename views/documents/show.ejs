@@ -6,9 +6,6 @@
   <a href="/documents/<%= document._id %>/edit">Edit document</a>
 </nav>
 
-<section>
-  <pre style="white-space: pre-wrap;"><%= document.content || '' %></pre>
-</section>
 
 <form
   action="/documents/<%= document._id %>/delete"
@@ -17,3 +14,8 @@
 >
   <button type="submit">Delete Document</button>
 </form>
+
+<br>
+<section>
+  <pre style="white-space: pre-wrap;"><%= document.content || '' %></pre>
+</section>

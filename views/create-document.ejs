@@ -25,7 +25,9 @@ what we want is: giant text upload box and file upload button. file upload butto
   document.getElementById('fileInput').addEventListener('change', async (evt) => {
     const file = evt.target.files[0];
     if (!file) return;
-    const text = await file.text(); // File API
-    document.querySelector('textarea[name="textContent"]').value = text;
+    if (file.type && file.type.startsWith('text/')) {
+      const text = await file.text(); // File API
+      document.querySelector('textarea[name="textContent"]').value = text;
+    }
   });
 </script>

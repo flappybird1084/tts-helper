@@ -2,6 +2,9 @@
 import express from 'express'
 import multer from 'multer'
 import fs from 'fs'
+import path from 'path'
+import pdfParse from 'pdf-parse/lib/pdf-parse.js'
+import mammoth from 'mammoth'
 import { verifyToken } from '../auth.js'
 import {
   addDocumentToUser,
@@ -14,23 +17,54 @@ import {
 const router = express.Router()
 const upload = multer({ dest: 'uploads/' }) // temporary folder
 
+async function fileToText(file) {
+  if (!file?.path) return ''
+
+  const { path: filePath, mimetype, originalname } = file
+  let buffer
+  try {
+    buffer = await fs.promises.readFile(filePath)
+  } catch (error) {
+    console.error('Failed to read uploaded file', error)
+    return ''
+  } finally {
+    await fs.promises.unlink(filePath).catch(() => {})
+  }
+
+  const extension = path.extname(originalname || '').toLowerCase()
+  const isPdf = mimetype === 'application/pdf' || extension === '.pdf'
+  const isDocx =
+    mimetype ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+    extension === '.docx'
+
+  try {
+    if (isPdf) {
+      const result = await pdfParse(buffer)
+      return result.text || ''
+    }
+
+    if (isDocx) {
+      const { value } = await mammoth.extractRawText({ buffer })
+      return value || ''
+    }
+
+    return buffer.toString('utf8')
+  } catch (error) {
+    console.error('Failed to parse uploaded file', error)
+    return buffer.toString('utf8')
+  }
+}
+
 async function extractDocumentPayload(req) {
   let { textContent = '', title = '' } = req.body
   title = title.trim() || 'Untitled'
 
   let content = textContent
-  const filePath = req.file?.path
-
-  if (filePath) {
-    try {
-      const fileContent = await fs.promises.readFile(filePath, 'utf8')
-      if (!content) {
-        content = fileContent
-      }
-    } finally {
-      if (filePath) {
-        await fs.promises.unlink(filePath).catch(() => {})
-      }
+  if (req.file) {
+    const fileContent = await fileToText(req.file)
+    if (!content) {
+      content = fileContent
     }
   }
 
