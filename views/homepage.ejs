@@ -1,4 +1,4 @@
-welcome <%=user.name%>!
+welcome <%= user.name %>!
 
   <button onclick="location.href='/documents/create'">create new document</button>
 
@@ -6,12 +6,14 @@ welcome <%=user.name%>!
 you have <%= documents.length %> documents in your database.
 <% if (documents.length !== 0) { %>
   these are: <br>
+<% } else { %>
+  <p>No documents yet. Create one to get started.</p>
 <% } %>
 
 <% documents.forEach(function(document) { %>
   <div>
-  <a href="/documents/<%= document%>">
-  <%=document%>
+  <a href="/documents/<%= encodeURIComponent(document.title) %>">
+  <%= document.title || 'Untitled' %>
   </a>
   </div>
 <% }); %>

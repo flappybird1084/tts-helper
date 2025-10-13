@@ -40,7 +40,11 @@ authRouter.get('/homepage', verifyToken, async (req, res) => {
   )
   console.log(`document len ${userDocuments.length}`)
 
-  res.render('homepage', { user, documents: userDocuments })
+  res.render('homepage', {
+    user,
+    documents: userDocuments,
+    encodeURIComponent
+  })
 })
 
 

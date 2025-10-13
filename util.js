@@ -24,6 +24,9 @@ export async function userExists(name) {
 export async function addDocumentToUser(name, content, title) {
   const user = await User.findOne({ name })
   if (!user) return
+  if (!Array.isArray(user.documents)) {
+    user.documents = []
+  }
   user.documents.push({ title, content })
   await user.save()
   console.log(`Added doc "${title}" for ${name}`)

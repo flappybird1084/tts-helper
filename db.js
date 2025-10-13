@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tts-helper'
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://100.64.0.25:27017/tts-helper'
 
 export async function connectDB() {
   try {
