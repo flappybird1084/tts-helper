@@ -9,7 +9,9 @@ you have <%= documents.length %> documents in your database.
 <% } %>
 
 <% documents.forEach(function(document) { %>
-  <div><%= document.title %>
+  <div>
+  <a href="/documents/<%= document%>">
   <%=document%>
+  </a>
   </div>
 <% }); %>
