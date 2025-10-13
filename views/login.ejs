@@ -3,6 +3,10 @@
   <input type="password" name="password" placeholder="Password">
   <input type="submit" value="Login">
 </form> -->
+<% if (error) { %>
+  <p style="color: red;"><%= error %></p>
+<% } %>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,5 +25,8 @@
   <input type="password" name="password" placeholder="Password" />
   <input type="submit" value="Login" />
 </form>
-</div>
 
+<p>
+  Don't have an account?
+  <a href="/signup">Sign up</a>
+</p>

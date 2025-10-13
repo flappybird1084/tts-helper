@@ -1,0 +1,36 @@
+<h1>Edit Document</h1>
+
+<nav>
+  <a href="/documents/<%= document._id %>">Cancel</a> |
+  <a href="/documents">Back to documents</a>
+</nav>
+
+<form
+  action="/documents/<%= document._id %>"
+  method="POST"
+  enctype="multipart/form-data"
+>
+  <label for="titleInput">Title</label>
+  <input
+    id="titleInput"
+    type="text"
+    name="title"
+    value="<%= document.title || '' %>"
+  />
+
+  <br><br>
+
+  <label for="contentArea">Content</label>
+  <textarea
+    id="contentArea"
+    name="textContent"
+    rows="20"
+    cols="100"><%= document.content || '' %></textarea>
+
+  <p>Uploading a file will replace the text above when left blank.</p>
+  <input type="file" name="file" accept=".txt,.md,.docx,.pdf" />
+
+  <br><br>
+
+  <button type="submit">Save Changes</button>
+</form>

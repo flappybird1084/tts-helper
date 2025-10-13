@@ -1,0 +1,20 @@
+<h1><%= user.name %>'s Documents</h1>
+
+<p>
+  <a href="/documents/create">Create new document</a> |
+  <a href="/homepage">Back to homepage</a>
+</p>
+
+<% if (!documents.length) { %>
+  <p>No documents yet. Create one to get started.</p>
+<% } else { %>
+  <ul>
+  <% documents.forEach(function(document) { %>
+    <li>
+      <a href="/documents/<%= document._id %>">
+        <%= document.title || 'Untitled' %>
+      </a>
+    </li>
+  <% }); %>
+  </ul>
+<% } %>
