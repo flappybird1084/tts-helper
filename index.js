@@ -1,75 +1,45 @@
-import express from 'express';
-import path from 'path';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { verifyToken, generateToken } from './auth.js';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
-import fs from 'fs';
-// import router from './routers/protected_router.js'
-import authRouter from './routers/protected_router.js';
-import { addUser, getUser } from './util.js';
+import express from 'express'
+import path from 'path'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { verifyToken, generateToken } from './auth.js'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import authRouter from './routers/protected_router.js'
+import { connectDB } from './db.js'
+import { addUser, getUser } from './util.js'
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const dbPath = path.join(__dirname, 'database.json');
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
-const app = express();
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+const app = express()
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'ejs')
+app.use(express.static('public'))
+app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
 
-app.use(express.static('public'));
-app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+await connectDB()                 // <‑‑ connect to Mongo before routes
+await addUser({ name: 'asd', password: 'asd' })
 
-app.get('/', (req, res) => {
-  // res.render('index', { title: 'Express' })
-  res.render('index.ejs');
-});
+app.use('/', authRouter)
 
-// const users = [{ id: 1, name: "asd", password: "asd" }];
-// let users = []
-// try {
-//   const db_data = fs.readFileSync(dbPath, 'utf-8');
-//   users = JSON.parse(db_data);
-// }
-// catch (e) {
-//   console.log("tried to load db data, explode wheeee")
-//   users = [];
-// }
-// const users = JSON.parse(fs.readFileSync(dbPath,'utf-8'));
+app.get('/', (req, res) => res.render('index'))
 
-addUser({ id: 2, name: 'asd', password: 'asd' });
+app.get('/login', (req, res) => res.render('login'))
 
-app.use('/', authRouter);
+app.post('/login', async (req, res) => {
+  const { name, password } = req.body
+  const user = await getUser(name)
+  if (!user || user.password !== password)
+    return res.status(401).json({ message: 'Invalid credentials' })
 
-app.get('/login', (req, res) => {
-  console.log('get login');
-  res.render('login');
-});
-// Login route – returns a signed JWT on success
-app.post('/login', (req, res) => {
-  console.log('post login');
-  const { name, password } = req.body;
-  // const user = users.find(u => u.name === name && u.password === password);
-  console.log(`going to find user ${name}`);
-  const user = getUser(name);
-  console.log(`found user ${user.name}`);
-  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
-  console.log(`successfully authorized ${user.name}`);
-  const token = generateToken(user);
-  res.cookie('token', token, { httpOnly: true });
-  // res.json({ token });
-  // res.json({ message: 'Login successful', token });
-  res.redirect('/homepage');
-});
+  const token = generateToken(user)
+  res.cookie('token', token, { httpOnly: true })
+  res.redirect('/homepage')
+})
 
-// Protected route – requires a valid JWT
-app.get('/protected', verifyToken, (req, res) => {
-  res.json({ message: 'You have accessed a protected route', user: req.user });
-});
+app.use((req, res) => res.status(404).send('404 – Page not found'))
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
+app.listen(3000, () => console.log('Server running on port 3000'))
