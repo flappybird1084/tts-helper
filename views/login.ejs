@@ -7,6 +7,18 @@
   <p style="color: red;"><%= error %></p>
 <% } %>
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.com</title>
+    <!-- For CSS to work - need to link it to html -->
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<nav class="navigation">
+  <ul >
+    <li class = "navigationItem">S</li>
+  </ul>
+</nav>
 <form action="/login" method="POST">
   <input type="text" name="name" placeholder="Name" />
   <input type="password" name="password" placeholder="Password" />
