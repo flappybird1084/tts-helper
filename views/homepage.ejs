@@ -1,6 +1,9 @@
 welcome <%= user.name %>!
 
   <button onclick="location.href='/documents/create'">create new document</button>
+  <form action="/logout" method="POST" style="display:inline;">
+    <button type="submit">log out</button>
+  </form>
 
 <br>
 you have <%= documents.length %> documents in your database.
@@ -12,7 +15,7 @@ you have <%= documents.length %> documents in your database.
 
 <% documents.forEach(function(document) { %>
   <div>
-  <a href="/documents/<%= encodeURIComponent(document.title) %>">
+  <a href="/documents/<%= document._id %>">
   <%= document.title || 'Untitled' %>
   </a>
   </div>

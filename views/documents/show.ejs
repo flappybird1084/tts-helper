@@ -1,0 +1,19 @@
+<h1><%= document.title || 'Untitled' %></h1>
+
+<nav>
+  <a href="/documents">Back to documents</a> |
+  <a href="/homepage">Homepage</a> |
+  <a href="/documents/<%= document._id %>/edit">Edit document</a>
+</nav>
+
+<section>
+  <pre style="white-space: pre-wrap;"><%= document.content || '' %></pre>
+</section>
+
+<form
+  action="/documents/<%= document._id %>/delete"
+  method="POST"
+  onsubmit="return confirm('Delete this document? This cannot be undone.');"
+>
+  <button type="submit">Delete Document</button>
+</form>

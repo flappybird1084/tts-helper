@@ -3,68 +3,160 @@ import express from 'express'
 import multer from 'multer'
 import fs from 'fs'
 import { verifyToken } from '../auth.js'
-import { addDocumentToUser, getUserDocuments } from '../util.js'
+import {
+  addDocumentToUser,
+  getUserDocuments,
+  getUserDocument,
+  updateUserDocument,
+  deleteUserDocument
+} from '../util.js'
 
 const router = express.Router()
-const upload = multer({ dest: 'uploads/' })   // temporary folder
+const upload = multer({ dest: 'uploads/' }) // temporary folder
 
-// router.get('/create-document', verifyToken, (req, res) => {
-//   res.render('create-document')
-// })
+async function extractDocumentPayload(req) {
+  let { textContent = '', title = '' } = req.body
+  title = title.trim() || 'Untitled'
+
+  let content = textContent
+  const filePath = req.file?.path
+
+  if (filePath) {
+    try {
+      const fileContent = await fs.promises.readFile(filePath, 'utf8')
+      if (!content) {
+        content = fileContent
+      }
+    } finally {
+      if (filePath) {
+        await fs.promises.unlink(filePath).catch(() => {})
+      }
+    }
+  }
+
+  return { title, content }
+}
+
+router.get('/documents', verifyToken, async (req, res) => {
+  try {
+    const documents = await getUserDocuments(req.user.name)
+    res.render('documents/index', { user: req.user, documents })
+  } catch (error) {
+    console.error('Failed to list documents', error)
+    res.status(500).send('Failed to load documents')
+  }
+})
+
 router.get('/documents/create', verifyToken, (req, res) => {
-  res.render('create-document');
-});
+  res.render('create-document')
+})
 
-// handle file+text form submission
+const createDocumentHandler = async (req, res) => {
+  try {
+    const user = req.user
+    const { title, content } = await extractDocumentPayload(req)
+
+    await addDocumentToUser(user.name, content, title)
+
+    res.redirect('/documents')
+  } catch (error) {
+    console.error('Failed to add document', error)
+    res.status(500).send('Failed to save document')
+  }
+}
+
+router.post(
+  '/documents',
+  verifyToken,
+  upload.single('file'),
+  createDocumentHandler
+)
+
+// legacy route support
 router.post(
   '/documents/create',
   verifyToken,
   upload.single('file'),
+  createDocumentHandler
+)
+
+router.get('/documents/:documentId', verifyToken, async (req, res) => {
+  try {
+    const document = await getUserDocument(
+      req.user.name,
+      req.params.documentId
+    )
+
+    if (!document) {
+      return res.status(404).send('Document not found')
+    }
+
+    res.render('documents/show', { user: req.user, document })
+  } catch (error) {
+    console.error('Failed to fetch document', error)
+    res.status(500).send('Failed to fetch document')
+  }
+})
+
+router.get('/documents/:documentId/edit', verifyToken, async (req, res) => {
+  try {
+    const document = await getUserDocument(
+      req.user.name,
+      req.params.documentId
+    )
+
+    if (!document) {
+      return res.status(404).send('Document not found')
+    }
+
+    res.render('documents/edit', { user: req.user, document })
+  } catch (error) {
+    console.error('Failed to load document editor', error)
+    res.status(500).send('Failed to load document editor')
+  }
+})
+
+router.post(
+  '/documents/:documentId',
+  verifyToken,
+  upload.single('file'),
   async (req, res) => {
     try {
-      console.log(`post create document`)
-      const user = req.user
-      let { textContent, title } = req.body
-      const filePath = req.file?.path
+      const { title, content } = await extractDocumentPayload(req)
 
-      title = title || 'Untitled'
-      console.log(`received document create with name ${title}`)
+      const updated = await updateUserDocument(
+        req.user.name,
+        req.params.documentId,
+        { title, content }
+      )
 
-      let documentText = textContent || ''
-      if (filePath && !documentText) {
-        // read uploaded file if provided, simple UTF-8 assumption
-        documentText = fs.readFileSync(filePath, 'utf8')
-        fs.unlinkSync(filePath) // optional: remove after reading
+      if (!updated) {
+        return res.status(404).send('Document not found')
       }
 
-      // store the document text under this user
-      await addDocumentToUser(user.name, documentText, title)
-
-      res.redirect('/homepage')
+      res.redirect(`/documents/${req.params.documentId}`)
     } catch (error) {
-      console.error('Failed to add document', error)
-      res.status(500).send('Failed to save document')
+      console.error('Failed to update document', error)
+      res.status(500).send('Failed to update document')
     }
   }
 )
 
-router.get('/documents/:documentTitle', verifyToken, async (req, res) => {
+router.post('/documents/:documentId/delete', verifyToken, async (req, res) => {
   try {
-    const documentTitle = req.params.documentTitle
-    const user = req.user
-    const userDocuments = await getUserDocuments(user.name)
-    console.log(`userDocuments: ${JSON.stringify(userDocuments)}`)
-    const document = userDocuments.find(d => d.title === documentTitle)
-    if (!document) {
-      return res.status(404).json({ message: 'Document not found' })
-    }
-    console.log(
-      `found document: ${document.title} with content: ${document.content}`
+    const removed = await deleteUserDocument(
+      req.user.name,
+      req.params.documentId
     )
-    res.json(document)
+
+    if (!removed) {
+      return res.status(404).send('Document not found')
+    }
+
+    res.redirect('/documents')
   } catch (error) {
-    console.error('Failed to fetch document', error)
-    res.status(500).json({ message: 'Failed to fetch document' })
+    console.error('Failed to delete document', error)
+    res.status(500).send('Failed to delete document')
   }
 })
 

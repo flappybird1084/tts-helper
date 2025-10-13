@@ -1,31 +1,55 @@
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
+import { getUserById, toPublicUser } from './util.js'
 
-const SECRET = 'secret';
+const SECRET = process.env.JWT_SECRET || 'secret'
 
 export function generateToken(user) {
-  // return jwt.sign(payload, SECRET)
-  return jwt.sign({ id: user.id, name: user.name }, SECRET, { expiresIn: '12h' });
+  const userId =
+    user?.id ||
+    (typeof user?._id === 'object' && user?._id !== null
+      ? user._id.toString()
+      : user?._id) ||
+    null
+
+  if (!userId || !user?.name) {
+    throw new Error('Cannot generate token without user id and name')
+  }
+
+  return jwt.sign({ id: userId, name: user.name }, SECRET, {
+    expiresIn: '12h'
+  })
 }
 
-export function verifyToken(req, res, next) {
-  let token = req.headers.authorization?.split(' ')[1];
-
-  if (!token && req.cookies && req.cookies.token) {
-    token = req.cookies.token;
+function respondUnauthorized(req, res, message = 'Unauthorized') {
+  const acceptsJSON = req.headers.accept?.includes('application/json')
+  if (!acceptsJSON) {
+    return res.redirect('/login')
   }
+  return res.status(401).json({ message })
+}
 
-  // console.log(`token: ${token}`);
+export async function verifyToken(req, res, next) {
+  try {
+    let token = req.headers.authorization?.split(' ')[1]
 
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  jwt.verify(token, SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ message: 'Invalid token' });
+    if (!token && req.cookies && req.cookies.token) {
+      token = req.cookies.token
     }
-    // console.log(`decoded: ${decoded}`);
-    req.user = decoded;
-    next();
-  });
+
+    if (!token) {
+      return respondUnauthorized(req, res)
+    }
+
+    const decoded = jwt.verify(token, SECRET)
+    const user = await getUserById(decoded.id)
+    if (!user) {
+      return respondUnauthorized(req, res)
+    }
+
+    req.user = toPublicUser(user)
+    next()
+  } catch (error) {
+    console.error('Token verification failed', error)
+    return respondUnauthorized(req, res, 'Invalid token')
+  }
 }

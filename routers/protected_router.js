@@ -1,7 +1,7 @@
 import express from 'express';
 // import { verifyToken } from '../auth';
 import { verifyToken } from '../auth.js';
-import { getUser, getUserDocuments } from '../util.js';
+import { getUserDocuments } from '../util.js';
 
 const authRouter = express.Router();
 
@@ -42,8 +42,7 @@ authRouter.get('/homepage', verifyToken, async (req, res) => {
 
   res.render('homepage', {
     user,
-    documents: userDocuments,
-    encodeURIComponent
+    documents: userDocuments
   })
 })
 
