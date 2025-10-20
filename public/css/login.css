@@ -33,3 +33,14 @@ body {
   padding-top: 80px; /* adjust to navbar height */
   font-family: 'Poppins', sans-serif;
 }
+
+.loginBox{
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    background: #FCFFBD;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    display:flex;
+    flex-direction: column;
+}
