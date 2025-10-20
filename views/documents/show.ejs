@@ -15,7 +15,229 @@
   <button type="submit">Delete Document</button>
 </form>
 
-<br>
-<section>
-  <pre style="white-space: pre-wrap;"><%= document.content || '' %></pre>
+<section id="tts-player" style="margin-top: 1.5rem;">
+  <h2>Listen to Document</h2>
+  <p id="tts-unsupported" style="display: none; color: #b00;">
+    Your browser does not support text-to-speech playback.
+  </p>
+
+  <div id="tts-controls" style="display: none;">
+    <label for="tts-voice">Voice</label>
+    <select id="tts-voice"></select>
+
+    <label for="tts-rate" style="margin-left: 1rem;">Rate</label>
+    <input id="tts-rate" type="range" min="0.5" max="1.75" step="0.05" value="1">
+    <span id="tts-rate-value">1.0x</span>
+
+    <label for="tts-pitch" style="margin-left: 1rem;">Pitch</label>
+    <input id="tts-pitch" type="range" min="0.5" max="2" step="0.1" value="1">
+    <span id="tts-pitch-value">1.0</span>
+
+    <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button type="button" id="tts-play">Play</button>
+      <button type="button" id="tts-pause" disabled>Pause</button>
+      <button type="button" id="tts-resume" disabled>Resume</button>
+      <button type="button" id="tts-stop" disabled>Stop</button>
+    </div>
+  </div>
+
+  <p id="tts-status" style="margin-top: 0.75rem; color: #555;"></p>
 </section>
+
+<br>
+<!-- <section>
+  <pre style="white-space: pre-wrap;"><%= document.content || '' %></pre>
+</section> -->
+<section>
+  <div
+    style="
+      max-width: 800px;       /* readable column width */
+      margin: 2rem auto;      /* center on screen */
+      padding: 1.5rem;
+      background-color: #f6f6f6;  /* light gray background */
+      border-radius: 6px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.08);
+      line-height: 1.6;
+      font-family: system-ui, sans-serif;
+      white-space: pre-wrap;
+      word-break: break-word;
+    "
+  >
+    <pre style="white-space: pre-wrap; margin: 0;"><%= document.content || '' %></pre>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const synth = window.speechSynthesis;
+    const textContent = <%- JSON.stringify(document.content || '') %>;
+    const unsupportedBanner = document.getElementById('tts-unsupported');
+    const controls = document.getElementById('tts-controls');
+    const status = document.getElementById('tts-status');
+    const voiceSelect = document.getElementById('tts-voice');
+    const rateSlider = document.getElementById('tts-rate');
+    const pitchSlider = document.getElementById('tts-pitch');
+    const rateValue = document.getElementById('tts-rate-value');
+    const pitchValue = document.getElementById('tts-pitch-value');
+    const playBtn = document.getElementById('tts-play');
+    const pauseBtn = document.getElementById('tts-pause');
+    const resumeBtn = document.getElementById('tts-resume');
+    const stopBtn = document.getElementById('tts-stop');
+    let voices = [];
+    let utterance = null;
+
+    if (!synth) {
+      unsupportedBanner.style.display = 'block';
+      return;
+    }
+
+    controls.style.display = 'block';
+
+    function setStatus(message) {
+      status.textContent = message || '';
+    }
+
+    function syncButtons() {
+      const hasText = Boolean(textContent.trim());
+      const isSpeaking = synth.speaking;
+      const isPaused = synth.paused;
+      playBtn.disabled = (!hasText || (isSpeaking && !isPaused));
+      pauseBtn.disabled = (!isSpeaking || isPaused);
+      resumeBtn.disabled = !isPaused;
+      stopBtn.disabled = !isSpeaking;
+    }
+
+    function populateVoices() {
+      const previousSelection = voiceSelect.value;
+      voices = synth.getVoices();
+      voiceSelect.innerHTML = '';
+      voices.forEach((voice, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' • default' : ''}`;
+        voiceSelect.appendChild(option);
+      });
+      const hasPreviousSelection = Array.from(voiceSelect.options).some(
+        (option) => option.value === previousSelection
+      );
+      if (hasPreviousSelection) {
+        voiceSelect.value = previousSelection;
+      } else {
+        const defaultVoiceIndex = voices.findIndex((voice) => voice.default);
+        voiceSelect.value = defaultVoiceIndex >= 0 ? defaultVoiceIndex : '0';
+      }
+    }
+
+    populateVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    function createUtterance() {
+      if (!textContent.trim()) {
+        setStatus('There is no text to read.');
+        return null;
+      }
+
+      const voiceIndex = parseInt(voiceSelect.value, 10);
+      const selectedVoice = voices[Number.isInteger(voiceIndex) ? voiceIndex : 0] || null;
+      const newUtterance = new SpeechSynthesisUtterance(textContent);
+      newUtterance.rate = parseFloat(rateSlider.value);
+      newUtterance.pitch = parseFloat(pitchSlider.value);
+      if (selectedVoice) {
+        newUtterance.voice = selectedVoice;
+      }
+      newUtterance.onstart = () => {
+        setStatus('Playing…');
+        syncButtons();
+      };
+      newUtterance.onend = () => {
+        setStatus('Playback finished.');
+        syncButtons();
+      };
+      newUtterance.onerror = () => {
+        setStatus('Unable to play text. Please try again.');
+        syncButtons();
+      };
+      newUtterance.onpause = () => {
+        setStatus('Paused.');
+        syncButtons();
+      };
+      newUtterance.onresume = () => {
+        setStatus('Playing…');
+        syncButtons();
+      };
+
+      return newUtterance;
+    }
+
+    playBtn.addEventListener('click', () => {
+      synth.cancel();
+      utterance = null;
+      utterance = createUtterance();
+      if (!utterance) {
+        syncButtons();
+        return;
+      }
+      playBtn.disabled = true;
+      synth.speak(utterance);
+      // Allow the speech engine to update its internal state before syncing the UI.
+      setTimeout(syncButtons, 0);
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (!synth.speaking) return;
+      synth.pause();
+      setStatus('Paused.');
+      syncButtons();
+    });
+
+    resumeBtn.addEventListener('click', () => {
+      if (!synth.paused) return;
+      synth.resume();
+      setStatus('Playing…');
+      syncButtons();
+    });
+
+    stopBtn.addEventListener('click', () => {
+      if (!synth.speaking && !synth.paused) return;
+      synth.cancel();
+      utterance = null;
+      setStatus('Stopped.');
+      syncButtons();
+    });
+
+    rateSlider.addEventListener('input', () => {
+      rateValue.textContent = `${parseFloat(rateSlider.value).toFixed(2)}x`;
+      if (synth.speaking || synth.paused) {
+        synth.cancel();
+        utterance = null;
+        setStatus('Playback stopped. Press play to hear the new rate.');
+      }
+      syncButtons();
+    });
+
+    pitchSlider.addEventListener('input', () => {
+      pitchValue.textContent = parseFloat(pitchSlider.value).toFixed(2);
+      if (synth.speaking || synth.paused) {
+        synth.cancel();
+        utterance = null;
+        setStatus('Playback stopped. Press play to hear the new pitch.');
+      }
+      syncButtons();
+    });
+
+    voiceSelect.addEventListener('change', () => {
+      if (synth.speaking || synth.paused) {
+        synth.cancel();
+        utterance = null;
+        setStatus('Playback stopped. Press play to hear the selected voice.');
+      }
+      syncButtons();
+    });
+
+    rateValue.textContent = `${parseFloat(rateSlider.value).toFixed(2)}x`;
+    pitchValue.textContent = parseFloat(pitchSlider.value).toFixed(2);
+    syncButtons();
+  })();
+</script>
