@@ -70,8 +70,7 @@
 <script>
   (function () {
     const synth = window.speechSynthesis;
-    // const textContent =  JSON.stringify(document.content || '');
-      const textContent = <%- JSON.stringify(document.content || "") %>;
+    const textContent = <%- JSON.stringify(document.content || '') %>;
     const unsupportedBanner = document.getElementById('tts-unsupported');
     const controls = document.getElementById('tts-controls');
     const status = document.getElementById('tts-status');
@@ -98,13 +97,14 @@
       status.textContent = message || '';
     }
 
-    function syncButtons(state) {
-      const isSpeaking = synth.speaking && !synth.paused;
+    function syncButtons() {
+      const hasText = Boolean(textContent.trim());
+      const isSpeaking = synth.speaking;
       const isPaused = synth.paused;
-      playBtn.disabled = state === 'playing' || !textContent.trim();
-      pauseBtn.disabled = !isSpeaking;
+      playBtn.disabled = (!hasText || (isSpeaking && !isPaused));
+      pauseBtn.disabled = (!isSpeaking || isPaused);
       resumeBtn.disabled = !isPaused;
-      stopBtn.disabled = !isSpeaking && !isPaused;
+      stopBtn.disabled = !isSpeaking;
     }
 
     function populateVoices() {
@@ -112,12 +112,10 @@
       voices = synth.getVoices();
       voiceSelect.innerHTML = '';
       voices.forEach((voice, index) => {
-        if (voice.lang.includes('en')) {
-          const option = document.createElement('option');
-          option.value = index;
-          option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' • default' : ''}`;
-          voiceSelect.appendChild(option);
-        }
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' • default' : ''}`;
+        voiceSelect.appendChild(option);
       });
       const hasPreviousSelection = Array.from(voiceSelect.options).some(
         (option) => option.value === previousSelection
@@ -149,6 +147,10 @@
       if (selectedVoice) {
         newUtterance.voice = selectedVoice;
       }
+      newUtterance.onstart = () => {
+        setStatus('Playing…');
+        syncButtons();
+      };
       newUtterance.onend = () => {
         setStatus('Playback finished.');
         syncButtons();
@@ -157,20 +159,30 @@
         setStatus('Unable to play text. Please try again.');
         syncButtons();
       };
+      newUtterance.onpause = () => {
+        setStatus('Paused.');
+        syncButtons();
+      };
+      newUtterance.onresume = () => {
+        setStatus('Playing…');
+        syncButtons();
+      };
 
       return newUtterance;
     }
 
     playBtn.addEventListener('click', () => {
       synth.cancel();
+      utterance = null;
       utterance = createUtterance();
       if (!utterance) {
         syncButtons();
         return;
       }
-      setStatus('Playing…');
+      playBtn.disabled = true;
       synth.speak(utterance);
-      syncButtons('playing');
+      // Allow the speech engine to update its internal state before syncing the UI.
+      setTimeout(syncButtons, 0);
     });
 
     pauseBtn.addEventListener('click', () => {
@@ -184,30 +196,44 @@
       if (!synth.paused) return;
       synth.resume();
       setStatus('Playing…');
-      syncButtons('playing');
+      syncButtons();
     });
 
     stopBtn.addEventListener('click', () => {
       if (!synth.speaking && !synth.paused) return;
       synth.cancel();
+      utterance = null;
       setStatus('Stopped.');
       syncButtons();
     });
 
     rateSlider.addEventListener('input', () => {
       rateValue.textContent = `${parseFloat(rateSlider.value).toFixed(2)}x`;
-      if (utterance && synth.speaking) {
+      if (synth.speaking || synth.paused) {
         synth.cancel();
-        playBtn.click();
+        utterance = null;
+        setStatus('Playback stopped. Press play to hear the new rate.');
       }
+      syncButtons();
     });
 
     pitchSlider.addEventListener('input', () => {
       pitchValue.textContent = parseFloat(pitchSlider.value).toFixed(2);
-      if (utterance && synth.speaking) {
+      if (synth.speaking || synth.paused) {
         synth.cancel();
-        playBtn.click();
+        utterance = null;
+        setStatus('Playback stopped. Press play to hear the new pitch.');
       }
+      syncButtons();
+    });
+
+    voiceSelect.addEventListener('change', () => {
+      if (synth.speaking || synth.paused) {
+        synth.cancel();
+        utterance = null;
+        setStatus('Playback stopped. Press play to hear the selected voice.');
+      }
+      syncButtons();
     });
 
     rateValue.textContent = `${parseFloat(rateSlider.value).toFixed(2)}x`;
