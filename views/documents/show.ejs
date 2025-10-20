@@ -94,10 +94,12 @@
       voices = synth.getVoices();
       voiceSelect.innerHTML = '';
       voices.forEach((voice, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' • default' : ''}`;
-        voiceSelect.appendChild(option);
+        if (voice.lang.includes('en')) {
+          const option = document.createElement('option');
+          option.value = index;
+          option.textContent = `${voice.name} (${voice.lang})${voice.default ? ' • default' : ''}`;
+          voiceSelect.appendChild(option);
+        }
       });
       const hasPreviousSelection = Array.from(voiceSelect.options).some(
         (option) => option.value === previousSelection
