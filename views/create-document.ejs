@@ -13,7 +13,9 @@
 <br></br>
 <form id="docForm" action="/documents" method="POST" enctype="multipart/form-data">
   <input type="text" name="title" placeholder="Document Title" />
-  <br></br>
+  
+  <input type="file" id="fileInput" name="file" accept=".txt,.md,.docx,.pdf" />
+  <br><br>
   <textarea
     name="textContent"
     rows="20"
@@ -21,10 +23,6 @@
     placeholder="Paste or type your text here..."
   ></textarea>
   <br><br>
-
-  <input type="file" id="fileInput" name="file" accept=".txt,.md,.docx,.pdf" />
-  <br><br>
-
   <button type="submit">Create Document</button>
 </form>
 

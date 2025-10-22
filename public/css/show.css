@@ -1,0 +1,130 @@
+/* ===== Navigation Bar ===== */
+.navigation {
+  position: fixed;            /* stays at top while scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #CBD4C2; /* color gradient */
+  height: 80px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* ===== Navigation Links ===== */
+
+.navigation{
+    list-style-type: none;
+    padding: 0; 
+    margin: 0; /* Removes default margin */
+    display: flex;
+    justify-content: space-between; /* pushes items to far left and right */
+    align-items: center;
+}
+.navLeft, .navRight{
+    font-size: 30px;
+    margin-right: 10px; /* Adds spacing between items (optional) */
+    color:#035E7B
+    
+}
+.navLeft{
+  text-align: left;
+  padding-left: 20px;
+}
+.navRight{
+  text-align: right;
+  text-decoration: none;
+  padding-right: 50px;
+
+  display: flex;             /* Makes children sit next to each other */
+  align-items: center;       /* Vertically centers text and button */
+  gap: 10px;                 /* Space between text and button */
+  white-space: nowrap;       /* Prevents wrapping to new line */
+}
+.navLeft a:visited,
+.navRight a:visited {
+  color: #035E7B; /* same as normal */
+}
+.navLeft a.hover, 
+.navRight a:hover {
+  color: #d4e6ff;
+  transform: translateY(-2px);
+  text-decoration: underline;
+}
+
+/* ===== Body offset (so content isn't hidden under navbar) ===== */
+body {
+  margin: 0;
+  padding-top: 90px; /* adjust to navbar height */
+  font-family: 'Poppins', sans-serif;
+  padding-left: 10px;
+}
+
+button{
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    display:flex;
+    flex-direction: column;
+    gap: 5px;  
+}
+
+p{
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    background: #CEF5CE;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    display:flex;
+    flex-direction: column;
+    gap: 25px;  
+    text-align: center;
+    font-size: 20px;
+}
+
+/* Main content area */
+.main-content {
+  padding: 30px 40px;
+}
+
+/* Create New button */
+.createButton {
+  background-color: #FCFFBD;
+  border: none;
+  padding: 10px 20px;
+  font-size: 30px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-bottom: 30px;
+}
+
+/* Documents Box */
+.documents-box {
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  max-width: 500px;
+  margin: 0 auto; 
+}
+
+.documents-title {
+  background-color: #8EC49A;
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 30px;
+}
+
+.documents-list  {
+  display: flex;
+  justify-content: center;   /* center horizontally */
+  align-items: center;       /* vertical alignment */
+  padding: 8px 0;
+  font-size: 20px;
+  text-align: center;
+  background-color: #CEF5CE;
+}
