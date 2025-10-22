@@ -54,7 +54,7 @@
 /* ===== Body offset (so content isn't hidden under navbar) ===== */
 body {
   margin: 0;
-  padding-top: 60px; /* adjust to navbar height */
+  padding-top: 90px; /* adjust to navbar height */
   font-family: 'Poppins', sans-serif;
 }
 

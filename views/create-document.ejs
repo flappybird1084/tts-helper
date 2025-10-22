@@ -1,11 +1,19 @@
-document creation page
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S.com</title>
+  <link rel="stylesheet" href="/css/createDocument.css">
+</head>
+<nav class="navigation">
+  <div class = "navLeft">S</div>
+</nav>
 
-what we want is: giant text upload box and file upload button. file upload button converts the file to a text file and then we can use the text file to create a document.
-
+<body>
 <h1>Create Document</h1>
-
+<br></br>
 <form id="docForm" action="/documents" method="POST" enctype="multipart/form-data">
   <input type="text" name="title" placeholder="Document Title" />
+  <br></br>
   <textarea
     name="textContent"
     rows="20"
@@ -31,3 +39,4 @@ what we want is: giant text upload box and file upload button. file upload butto
     }
   });
 </script>
+</body>
