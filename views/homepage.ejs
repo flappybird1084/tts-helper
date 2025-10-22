@@ -1,22 +1,41 @@
-welcome <%= user.name %>!
-
-  <button onclick="location.href='/documents/create'">create new document</button>
-  <form action="/logout" method="POST" style="display:inline;">
-    <button type="submit">log out</button>
-  </form>
-
-<br>
-you have <%= documents.length %> documents in your database.
-<% if (documents.length !== 0) { %>
-  these are: <br>
-<% } else { %>
-  <p>No documents yet. Create one to get started.</p>
-<% } %>
-
-<% documents.forEach(function(document) { %>
-  <div>
-  <a href="/documents/<%= document._id %>">
-  <%= document.title || 'Untitled' %>
-  </a>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S.com</title>
+    <!-- For CSS to work - need to link it to html -->
+    <link rel="stylesheet" href="css/homepage.css">
+</head>
+<nav class="navigation">
+  <div class = "navLeft">S</div>
+  <div class = "navRight">
+    Welcome <%= user.name %>!
+    <form action="/logout" method="POST" style="display:inline;">
+      <button class="logout" type="submit">log out</button>
+    </form>
   </div>
-<% }); %>
+</nav>
+<main class="main-content"></main>
+  <button class="createDocument" onclick="location.href='/documents/create'">Create New Document</button>
+
+  <br>
+  <!--Do you have documents? :D-->
+  <p>
+    You have <%= documents.length %> documents in your database.
+    <% if (documents.length !== 0) { %>
+      <br>
+    <% } else { %>
+      <p>No documents yet. Create one to get started.</p>
+    <% } %>
+  </p>
+  <div class="documents-box">
+    <div class="documents-title">Documents</div>
+    <!--Prints out Documents-->
+    <% documents.forEach(function(document) { %>
+      <div>
+      <a class="documents-list" href="/documents/<%= document._id %>">
+      <%= document.title || 'Untitled' %>
+      </a>
+      </div>
+    <% }); %>
+  </div>
+</main>
