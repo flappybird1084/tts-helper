@@ -1,0 +1,55 @@
+/* ===== Navigation Bar ===== */
+.navigation {
+  position: fixed;            /* stays at top while scrolling */
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #CBD4C2; /* color gradient */
+  height: 80px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* ===== Navigation Links ===== */
+
+.navigation{
+    list-style-type: none;
+    padding: 0; 
+    margin: 0; /* Removes default margin */
+    display: flex;
+    justify-content: space-between; /* pushes items to far left and right */
+    align-items: center;
+}
+.navLeft, .navRight{
+    font-size: 30px;
+    margin-right: 10px; /* Adds spacing between items (optional) */
+    color:#035E7B
+    
+}
+.navLeft{
+  text-align: left;
+  padding-left: 20px;
+}
+.navRight{
+  text-align: right;
+  text-decoration: none;
+  padding-right: 20px;
+}
+.navLeft a:visited,
+.navRight a:visited {
+  color: #035E7B; /* same as normal */
+}
+.navLeft a.hover, 
+.navRight a:hover {
+  color: #d4e6ff;
+  transform: translateY(-2px);
+  text-decoration: underline;
+}
+
+/* ===== Body offset (so content isn't hidden under navbar) ===== */
+body {
+  margin: 0;
+  padding-top: 90px; /* adjust to navbar height */
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
