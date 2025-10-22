@@ -72,13 +72,14 @@ async function extractDocumentPayload(req) {
 }
 
 router.get('/documents', verifyToken, async (req, res) => {
-  try {
-    const documents = await getUserDocuments(req.user.name)
-    res.render('documents/index', { user: req.user, documents })
-  } catch (error) {
-    console.error('Failed to list documents', error)
-    res.status(500).send('Failed to load documents')
-  }
+  // try {
+  //   const documents = await getUserDocuments(req.user.name)
+  //   res.render('documents/index', { user: req.user, documents })
+  // } catch (error) {
+  //   console.error('Failed to list documents', error)
+  //   res.status(500).send('Failed to load documents')
+  // }
+  res.redirect('/homepage')
 })
 
 router.get('/documents/create', verifyToken, (req, res) => {
