@@ -128,3 +128,15 @@ p{
   text-align: center;
   background-color: #CEF5CE;
 }
+
+.tts-word {
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tts-word:hover,
+.tts-word--active {
+  background-color: #222;
+  color: #fff;
+  border-radius: 3px;
+}
